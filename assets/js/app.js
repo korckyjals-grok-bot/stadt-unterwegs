@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs — interfaz. v1.0.0 */
+/* In der Stadt unterwegs — interfaz. v1.0.1 */
 (function () {
   'use strict';
   var D = window.STADT_DATA, M = window.STADT_MAP, B = window.STADT_BANK, E = window.STADT_ENGINE;
@@ -11,11 +11,31 @@
   function store() { try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return localStorage; } catch (e) { var m = {}; return { getItem: function (k) { return k in m ? m[k] : null; }, setItem: function (k, v) { m[k] = String(v); }, removeItem: function (k) { delete m[k]; } }; } }
   var ST = store();
   function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600); }
+  var NOVOICE = '🔇 Este navegador no tiene voz en alemán. Lee la frase en voz alta tú mismo.';
   function speak(text) {
     var clean = String(text).replace(/<[^>]+>/g, ' ').replace(/_{3,}/g, '…').replace(/[⬅️➡️⬆️]/g, '');
     try {
-      if (!SP || !SP.speak(clean, { onError: function () {} })) toast('🔇 Este navegador no tiene voz en alemán. Lee la frase en voz alta tú mismo.');
+      /* speech.js espera a que carguen las voces antes de decidir que no hay voz alemana; nunca usa una voz inglesa */
+      if (!SP) { toast(NOVOICE); return; }
+      SP.speak(clean, {
+        onNoVoice: function () { toast(NOVOICE); },
+        onError: function (e) { var c = e && (e.error || e.message); if (c === 'interrupted' || c === 'canceled') return; toast('🔇 No se pudo reproducir el audio. Lee la frase en voz alta tú mismo.'); }
+      });
     } catch (e) { toast('🔇 No se pudo reproducir el audio.'); }
+  }
+  /* Asegura que un bloque (mensaje + explicación) se vea completo por encima de la barra fija de abajo */
+  function revealAbove(el, bar) {
+    try {
+      if (!el || el.classList.contains('hid')) return;
+      var h = bar && bar.classList.contains('stick') ? bar.offsetHeight : 0;
+      var r = el.getBoundingClientRect(), limit = window.innerHeight - h - 12;
+      if (r.bottom > limit) {
+        var dy = r.bottom - limit, top = $('msg').getBoundingClientRect().top;
+        /* no subir tanto que el mensaje ¡Muy bien!/¡Casi! se salga por arriba */
+        if (el.id === 'exp' && top - dy < 8) dy = Math.max(0, top - 8);
+        window.scrollBy(0, dy);
+      }
+    } catch (e) {}
   }
   function stopSpeak() { try { SP && SP.cancel(); } catch (e) {} }
   function drawCk() { var c = E.getChecks(ST); document.querySelectorAll('.chk').forEach(function (e) { e.classList.toggle('no', c.indexOf(e.dataset.t) < 0); }); }
@@ -64,14 +84,14 @@
   function drawRoute() {
     var r = D.ROUTES[rI], sp = D.place(r.start), p = D.place(r.dest);
     $('stTitle').textContent = '🗺️ Rutas modelo (' + (rI + 1) + '/' + D.ROUTES.length + ')';
-    $('rTitle').innerHTML = '<span class="de">' + M.cap(von(sp)) + ' ' + sp.n + ' ' + D.zu(p) + ' ' + p.n + '</span>';
+    $('rTitle').innerHTML = '<span class="de" lang="de">' + M.cap(von(sp)) + ' ' + sp.n + ' ' + D.zu(p) + ' ' + p.n + '</span>';
     $('fDu').className = 'btn ' + (rForm === 'du' ? '' : 'gray'); $('fSie').className = 'btn ' + (rForm === 'Sie' ? 'p' : 'gray');
     $('rAsk').textContent = '🙋 ' + M.askText(p);
     drawMap($('rMap'), { route: r, path: true, numbers: true, active: rActive, mark: (function () { var m = {}; m[p.n] = 'target'; return m; })() });
     var steps = M.routeSteps(r, rForm), es = M.routeSteps(r, 'es');
-    var html = '<li data-i="-1"><span class="n">⭐</span><span class="tx">' + M.startText(r, rForm) + (rHelp ? '<span class="es">' + M.startText(r, 'es') + '</span>' : '') + '</span><button class="say" aria-label="Escuchar">🔊</button></li>';
+    var html = '<li data-i="-1"><span class="n">⭐</span><span class="tx" lang="de">' + M.startText(r, rForm) + (rHelp ? '<span class="es" lang="es">' + M.startText(r, 'es') + '</span>' : '') + '</span><button class="say" aria-label="Escuchar">🔊</button></li>';
     steps.forEach(function (s, i) {
-      html += '<li data-i="' + i + '" class="' + (i === rActive ? 'active' : '') + '"><span class="n">' + (i + 1) + '</span><span class="tx">' + s + (rHelp ? '<span class="es">' + es[i] + '</span>' : '') + '</span><button class="say" aria-label="Escuchar">🔊</button></li>';
+      html += '<li data-i="' + i + '" class="' + (i === rActive ? 'active' : '') + '"><span class="n">' + (i + 1) + '</span><span class="tx" lang="de">' + s + (rHelp ? '<span class="es" lang="es">' + es[i] + '</span>' : '') + '</span><button class="say" aria-label="Escuchar">🔊</button></li>';
     });
     $('rSteps').innerHTML = html;
     $('rSteps').querySelectorAll('li').forEach(function (li) {
@@ -93,7 +113,7 @@
     var set = CARDSETS[stTab], c = set[fcI];
     var label = STABS.filter(function (t) { return t[0] === stTab; })[0][1];
     $('stTitle').textContent = '📖 ' + label + ' (' + (fcI + 1) + '/' + set.length + ')';
-    $('fc').innerHTML = fcF ? '<div>' + c.b + '</div>' : '<div class="big">' + c.f + '</div>';
+    $('fc').innerHTML = fcF ? '<div lang="de">' + c.b + '</div>' : '<div class="big" lang="de">' + c.f + '</div>';
     $('fcHelp').textContent = '🆘 ' + c.es; $('fcHelp').classList.toggle('hid', !fcH);
     $('fcHelpB').textContent = fcH ? '🙈 Ocultar ayuda' : '🆘 Ayuda';
   }
@@ -139,17 +159,17 @@
     if (cur.kind === 'order') return drawOrder();
     if (cur.kind === 'tap') { $('opts').innerHTML = '<p class="hint">👆 Toca un lugar en el mapa.</p>'; return; }
     E.shuffle(cur.o).forEach(function (o) {
-      var b = document.createElement('button'); b.className = 'btn opt' + (o.length > 38 ? ' long' : ''); b.textContent = o;
+      var b = document.createElement('button'); b.className = 'btn opt' + (o.length > 38 ? ' long' : ''); b.textContent = o; b.lang = 'de';
       b.onclick = function () { answer(o, b); }; $('opts').appendChild(b);
     });
   }
   function drawOrder() {
-    var built = [], bx = document.createElement('div'); bx.className = 'built'; bx.textContent = '…';
+    var built = [], bx = document.createElement('div'); bx.className = 'built'; bx.textContent = '…'; bx.lang = 'de';
     var ch = document.createElement('div'); ch.className = 'chips';
     var sh = E.shuffle(cur.ord.map(function (w, i) { return [w, i]; }));
     var guard = 0; while (sh.length > 1 && sh.every(function (x, i) { return x[1] === i; }) && guard++ < 20) sh = E.shuffle(sh);
     sh.forEach(function (x) {
-      var c = document.createElement('button'); c.className = 'chip'; c.textContent = x[0];
+      var c = document.createElement('button'); c.className = 'chip'; c.textContent = x[0]; c.lang = 'de';
       c.onclick = function () { if (answered) return; c.disabled = true; built.push(x[0]); bx.textContent = built.join(' '); if (built.length === cur.ord.length) answer(built.slice(), null, bx); };
       ch.appendChild(c);
     });
@@ -163,7 +183,8 @@
     var ok = E.isRight(cur, given), right = E.rightOf(cur);
     if (cur.kind === 'order') {
       bx.style.background = ok ? '#c9f1d8' : '#ffd6d1';
-      if (!ok) bx.innerHTML = 'Tu respuesta: ' + given.join(' ') + '<br>✔️ ' + right;
+      if (ok && cur.sentence) bx.textContent = cur.sentence;
+      if (!ok) bx.innerHTML = 'Tu respuesta: ' + given.join(' ') + '<br>✔️ ' + (cur.sentence || right);
     } else if (cur.kind === 'tap') {
       var mk = {}; mk[cur.a] = 'ok'; if (!ok) mk[given] = 'bad';
       var r = cur.route ? ROUTE[cur.route] : null;
@@ -176,10 +197,11 @@
     $('sc').textContent = score; $('st').textContent = streak; $('cnt').textContent = 'Preguntas: ' + done;
     if (chal) { setTimeout(function () { if (chal && left > 0) next(); }, ok ? 600 : 1800); return; }
     $('exp').innerHTML = 'ℹ️ ' + cur.e; $('exp').classList.remove('hid'); $('nx').classList.remove('hid'); $('pAct').classList.add('stick');
+    revealAbove($('exp'), $('pAct'));
   }
   var lock = 0;
   $('nx').onclick = function () { if (Date.now() - lock < 400) return; lock = Date.now(); next(); };
-  $('bHelp').onclick = function () { var h = $('pHelp'); h.classList.toggle('hid'); $('bHelp').textContent = h.classList.contains('hid') ? '🆘 Ayuda' : '🙈 Ocultar ayuda'; };
+  $('bHelp').onclick = function () { var h = $('pHelp'); h.classList.toggle('hid'); $('bHelp').textContent = h.classList.contains('hid') ? '🆘 Ayuda' : '🙈 Ocultar ayuda'; revealAbove(h, $('pAct')); };
   $('senSay').onclick = function () { speak(cur && cur.de); };
   function finish() {
     stopTimer(); stopSpeak(); var wasChal = chal; chal = false; var t = '¡Buen trabajo, ' + window.NM() + '! 🌟';
@@ -189,7 +211,7 @@
       if (res.granted) { drawCk(); t = '✅ ¡Tema superado! ' + score + ' sin errores. ¡Bravo, ' + window.NM() + '!'; }
     }
     $('sumT').textContent = t; $('sumP').textContent = 'Respondiste bien ' + score + ' de ' + done + ' preguntas.';
-    $('sumL').innerHTML = missed.length ? '<h3>Para repasar:</h3><ul>' + missed.map(function (q) { return '<li><b>' + q.q + '</b> ' + (q.de || '') + '<br>✔️ ' + E.rightOf(q) + ' — ' + q.e + '</li>'; }).join('') + '</ul>' : '<p>¡No tuviste errores! 🎉</p>';
+    $('sumL').innerHTML = missed.length ? '<h3>Para repasar:</h3><ul>' + missed.map(function (q) { return '<li><b>' + q.q + '</b> ' + (q.de || '') + '<br>✔️ ' + (q.sentence || E.rightOf(q)) + ' — ' + q.e + '</li>'; }).join('') + '</ul>' : '<p>¡No tuviste errores! 🎉</p>';
     $('rep').classList.toggle('hid', !missed.length); show('sum');
   }
   $('bFinish').onclick = finish;
@@ -239,8 +261,8 @@
   function showModel() {
     var o = oList[oI];
     var lab = o.form ? '<span class="form ' + (o.form === 'Sie' ? 'sie' : '') + '">' + (o.form === 'Sie' ? 'Sie' : 'du') + '</span> ' : '';
-    $('oModel').innerHTML = '💡 Modelo: ' + lab + '<b>' + o.model + '</b> <button class="say" id="oModelSay" aria-label="Escuchar modelo">🔊</button><br><span class="hint">Escucha y repite en voz alta 2 veces.</span>';
-    $('oModel').classList.remove('hid');
+    $('oModel').innerHTML = '💡 Modelo: ' + lab + '<b lang="de">' + o.model + '</b> <button class="say" id="oModelSay" aria-label="Escuchar modelo">🔊</button><br><span class="hint">Escucha y repite en voz alta 2 veces.</span>';
+    $('oModel').classList.remove('hid'); revealAbove($('oModel'), $('oCard').querySelector('.actions'));
     $('oModelSay').onclick = function () { speak(o.model); };
     if (o.type === 'erklaeren') { oPathOn = true; $('oPath').textContent = '🙈 Ocultar camino'; }
     oralMap(oPathOn, true);
@@ -249,7 +271,7 @@
   $('oShow').onclick = showModel;
   $('oSay').onclick = function () { speak(oList[oI].prompt); };
   $('oPath').onclick = function () { oPathOn = !oPathOn; $('oPath').textContent = oPathOn ? '🙈 Ocultar camino' : '🧭 Ver camino'; oralMap(oPathOn, !$('oModel').classList.contains('hid')); };
-  $('oHelpB').onclick = function () { oHelpOn = !oHelpOn; $('oHelp').classList.toggle('hid', !oHelpOn); $('oHelpB').textContent = oHelpOn ? '🙈 Ocultar ayuda' : '🆘 Ayuda'; };
+  $('oHelpB').onclick = function () { oHelpOn = !oHelpOn; $('oHelp').classList.toggle('hid', !oHelpOn); $('oHelpB').textContent = oHelpOn ? '🙈 Ocultar ayuda' : '🆘 Ayuda'; revealAbove($('oHelp'), $('oCard').querySelector('.actions')); };
   $('oNext').onclick = function () { oDone++; oI = (oI + 1) % oList.length; if (oI === 0) oList = E.shuffle(oList); drawOral(); };
   $('oAgain').onclick = function () { $('oHeard').classList.add('hid'); speak(oList[oI].prompt); };
   $('oBack').onclick = oralMenu;
@@ -264,8 +286,9 @@
         alts.forEach(function (a) { var m = LS.matchKeys(a, o.keys); if (m.length > hit.length) { hit = m; best = a; } });
         var uniq = []; (o.keys || []).forEach(function (k) { if (uniq.indexOf(k) < 0) uniq.push(k); });
         h.innerHTML = '👂 Escuché: «' + best.replace(/</g, '') + '»<br>' + (hit.length ? '⭐ ¡Muy bien! Dijiste: <b>' + hit.join(', ') + '</b>.' + (hit.length < uniq.length ? ' Compara con el modelo 💡.' : ' 🎉') : '🙂 ¡Buen intento! Mira el modelo 💡 y repítelo.');
+        revealAbove(h, $('oCard').querySelector('.actions'));
       },
-      onError: function () { oListen = null; h.textContent = '🙂 No te escuché bien, ¡no pasa nada! Dilo en voz alta y luego mira el modelo 💡.'; }
+      onError: function () { oListen = null; h.textContent = '🙂 No te escuché bien, ¡no pasa nada! Dilo en voz alta y luego mira el modelo 💡.'; revealAbove(h, $('oCard').querySelector('.actions')); }
     });
   };
   $('bOral').onclick = oralMenu;

@@ -1,4 +1,4 @@
-/* Übungsbank: erzeugt alle Aufgaben deterministisch aus den Daten. v1.0.0
+/* Übungsbank: erzeugt alle Aufgaben deterministisch aus den Daten. v1.0.1
    kind: mc (opción múltiple) · tap (tocar en el mapa) · order (fichas) · build (elegir indicación para la ruta del mapa)
    fast: true → apto para Desafío 60 s (solo opción múltiple rápida, sin mapa) */
 (function (g) {
@@ -66,8 +66,9 @@
   ];
   WO.forEach(function (w, i) {
     var isWo = w[3] === 'wo';
-    add({ id: 'wowohin-' + i, topic: 'dativ', kind: 'mc', fast: true, q: isWo ? '📍 Wo? (está quieto) Completa:' : '➡️ Wohin? (va hacia allá) Completa:', de: w[0], o: [w[1]].concat(w[2]), a: w[1],
-      e: (isWo ? '📍 <b>Wo?</b> → Dativ: ' : '➡️ <b>Wohin?</b> → Akkusativ: ') + w[0].replace('___', '<b>' + w[1] + '</b>'), help: w[4] });
+    add({ id: 'wowohin-' + i, topic: 'dativ', kind: 'mc', fast: true, wo: isWo, q: '📍 Wo? o ➡️ Wohin? Completa:', de: w[0], o: [w[1]].concat(w[2]), a: w[1],
+      e: (isWo ? '📍 <b>Wo?</b> (está quieto) → Dativ: ' : '➡️ <b>Wohin?</b> (va hacia allá) → Akkusativ: ') + w[0].replace('___', '<b>' + w[1] + '</b>'),
+      help: w[4] + ' Pista: ' + (isWo ? '📍 Wo? (está quieto) → Dativ.' : '➡️ Wohin? (va hacia allá) → Akkusativ.') });
   });
   [['Ich bin im Museum.', 'wo', 'Estoy en el museo.'], ['Ich gehe ins Museum.', 'wohin', 'Voy al museo.'], ['Wir sind in der Kirche.', 'wo', 'Estamos en la iglesia.'],
    ['Wir gehen in die Kirche.', 'wohin', 'Vamos a la iglesia.'], ['Der Hund läuft in den Park.', 'wohin', 'El perro corre hacia el parque.'], ['Der Hund ist im Park.', 'wo', 'El perro está en el parque.']].forEach(function (w, i) {
@@ -77,23 +78,23 @@
   });
   var PREP = [
     ['Das Kino ist neben ___ Post.', 'der', ['die', 'dem'], 'die Post → neben <b>der</b> Post', 'El cine está al lado del correo.'],
-    ['Die Bank ist neben ___ Bahnhof.', 'dem', ['den', 'der'], 'der Bahnhof → neben <b>dem</b> Bahnhof', 'El banco está al lado de la estación.'],
-    ['Hinter ___ Schule ist ein Spielplatz.', 'der', ['die', 'dem'], 'die Schule → hinter <b>der</b> Schule', 'Detrás de la escuela hay un parque de juegos.'],
+    ['Der Park ist neben ___ Bahnhof.', 'dem', ['den', 'der'], 'der Bahnhof → neben <b>dem</b> Bahnhof', 'El parque está al lado de la estación.'],
+    ['Hinter ___ Kirche ist ein Garten.', 'der', ['die', 'dem'], 'die Kirche → hinter <b>der</b> Kirche', 'Detrás de la iglesia hay un jardín.'],
     ['Lina wartet vor ___ Kino.', 'dem', ['das', 'der'], 'das Kino → vor <b>dem</b> Kino', 'Lina espera delante del cine.'],
     ['Das Auto steht vor ___ Supermarkt.', 'dem', ['den', 'die'], 'der Supermarkt → vor <b>dem</b> Supermarkt', 'El carro está delante del supermercado.'],
-    ['Der Park ist hinter ___ Rathaus.', 'dem', ['das', 'der'], 'das Rathaus → hinter <b>dem</b> Rathaus', 'El parque está detrás de la alcaldía.'],
-    ['Die Apotheke ist neben ___ Bäckerei.', 'der', ['die', 'den'], 'die Bäckerei → neben <b>der</b> Bäckerei', 'La farmacia está al lado de la panadería.'],
+    ['Hinter ___ Hotel ist ein Parkplatz.', 'dem', ['das', 'der'], 'das Hotel → hinter <b>dem</b> Hotel', 'Detrás del hotel hay un parqueo.'],
+    ['Die Eisdiele ist neben ___ Bäckerei.', 'der', ['die', 'den'], 'die Bäckerei → neben <b>der</b> Bäckerei', 'La heladería está al lado de la panadería.'],
     ['Das Hotel ist neben ___ Museum.', 'dem', ['das', 'den'], 'das Museum → neben <b>dem</b> Museum', 'El hotel está al lado del museo.'],
     ['Geh an ___ Ampel links.', 'der', ['die', 'dem'], 'die Ampel → an <b>der</b> Ampel', 'En el semáforo, ve a la izquierda.'],
     ['Wir warten an ___ Bushaltestelle.', 'der', ['die', 'dem'], 'die Bushaltestelle → an <b>der</b> Bushaltestelle', 'Esperamos en la parada de bus.']
   ];
   PREP.forEach(function (w, i) {
-    add({ id: 'prep-' + i, topic: 'dativ', kind: 'mc', fast: true, q: 'Wo? → Dativ. ¿Qué artículo va?', de: w[0], o: [w[1]].concat(w[2]), a: w[1],
-      e: 'Para decir dónde está algo usamos <b>Dativ</b>: ' + w[3] + '.', help: w[4] });
+    add({ id: 'prep-' + i, topic: 'dativ', kind: 'mc', fast: true, q: '¿Qué artículo va?', de: w[0], o: [w[1]].concat(w[2]), a: w[1],
+      e: 'Para decir dónde está algo usamos <b>Dativ</b>: ' + w[3] + '.', help: w[4] + ' Pista: Wo? → Dativ.' });
   });
-  add({ id: 'prep-zw', topic: 'dativ', kind: 'mc', fast: true, q: 'Wo? → Dativ. ¿Qué es correcto?', de: 'Das Café ist zwischen ___ .',
+  add({ id: 'prep-zw', topic: 'dativ', kind: 'mc', fast: true, q: '¿Qué es correcto?', de: 'Das Café ist zwischen ___.',
     o: ['der Bank und dem Hotel', 'die Bank und das Hotel', 'dem Bank und der Hotel'], a: 'der Bank und dem Hotel',
-    e: 'zwischen + Dativ: die Bank → <b>der</b> Bank, das Hotel → <b>dem</b> Hotel.', help: 'El café está entre el banco y el hotel.' });
+    e: 'zwischen + Dativ: die Bank → <b>der</b> Bank, das Hotel → <b>dem</b> Hotel.', help: 'El café está entre el banco y el hotel. Pista: Wo? → Dativ.' });
   [['zum', 'zu + dem', ['zu + der', 'zu + das']], ['zur', 'zu + der', ['zu + dem', 'zu + die']], ['im', 'in + dem', ['in + das', 'in + den']],
    ['ins', 'in + das', ['in + dem', 'in + die']], ['am', 'an + dem', ['an + das', 'an + der']]].forEach(function (w) {
     add({ id: 'contr-' + w[0], topic: 'dativ', kind: 'mc', fast: true, q: '¿De qué palabras viene?', de: w[0], o: [w[1]].concat(w[2]), a: w[1],
@@ -212,8 +213,8 @@
     var p = PL(r.dest), sp = PL(r.start);
     ['du', 'Sie'].forEach(function (form) {
       add({ id: 'follow-' + form + '-' + r.id, topic: 'weg', kind: 'tap', map: true, route: r.id, showStart: true, form: form,
-        q: 'Escucha o lee el camino. Toca el lugar donde llegas:', de: M.startText(r, form) + ' ' + M.routeText(r, form), a: r.dest,
-        e: 'Llegas a <b>' + p.g + ' ' + p.n + '</b>. Mira el camino naranja en el mapa.', help: M.startText(r, 'es') + ' ' + M.routeText(r, 'es') });
+        q: 'Escucha o lee el camino. Toca el lugar donde llegas:', de: M.startText(r, form) + ' ' + M.followText(r, form), a: r.dest,
+        e: 'Llegas ' + aEs(p.es) + ': <b>' + p.g + ' ' + p.n + '</b>. Mira el camino naranja en el mapa.', help: M.startText(r, 'es') + ' ' + M.followText(r, 'es') });
     });
     var correct = M.routeText(r, 'du');
     var muts = mutations(r).filter(function (m) { return m.text !== correct; });
@@ -251,12 +252,13 @@
   ['Bahnhof', 'Post', 'Bibliothek', 'Krankenhaus', 'Schwimmbad', 'Eisdiele'].forEach(function (n) {
     var p = PL(n);
     add({ id: 'frage-' + n, topic: 'weg', kind: 'order', q: 'Arma la pregunta para llegar ' + aEs(p.es) + ':', de: '', pic: p.i,
-      ord: ['Entschuldigung,', 'wie', 'komme', 'ich', D.zu(p), n + '?'], e: '<b>Entschuldigung, wie komme ich ' + D.zu(p) + ' ' + n + '?</b>', help: 'Disculpe, ¿cómo llego ' + aEs(p.es) + '?' });
+      ord: ['Entschuldigung', 'wie', 'komme', 'ich', D.zu(p), n], sentence: 'Entschuldigung, wie komme ich ' + D.zu(p) + ' ' + n + '?',
+      e: '<b>Entschuldigung, wie komme ich ' + D.zu(p) + ' ' + n + '?</b>', help: 'Disculpe, ¿cómo llego ' + aEs(p.es) + '?' });
   });
   ['Post', 'Park', 'Apotheke', 'Rathaus'].forEach(function (n) {
     var p = PL(n);
     add({ id: 'woist-' + n, topic: 'weg', kind: 'order', q: 'Arma la pregunta: ¿dónde está ' + p.es + '?', de: '', pic: p.i,
-      ord: ['Wo', 'ist', p.g, n + '?'], e: '<b>Wo ist ' + p.g + ' ' + n + '?</b>', help: '¿Dónde está ' + p.es + '?' });
+      ord: ['wo', 'ist', p.g, n], sentence: 'Wo ist ' + p.g + ' ' + n + '?', e: '<b>Wo ist ' + p.g + ' ' + n + '?</b>', help: '¿Dónde está ' + p.es + '?' });
   });
 
   /* ---------- ORAL ---------- */
@@ -270,7 +272,7 @@
     var a = ASKERS[i % ASKERS.length];
     oral.push({ id: 'o-erkl-' + r.id, type: 'erklaeren', route: r.id, showStart: true, who: a.who, form: a.form,
       prompt: M.askText(p), model: M.routeText(r, a.form), keys: r.steps.filter(function (s) { return s.s; }).map(function (s) { return s.s === 'L' ? 'links' : 'rechts'; }).concat([p.n]),
-      help: 'Te preguntan: «Disculpe, ¿cómo llego ' + aEs(p.es) + '?» Explica el camino con ' + (a.form === 'Sie' ? '«Sie» (adulto): Gehen Sie…, Nehmen Sie…' : '«du» (niño): Geh…, Nimm…') + '. Modelo: ' + M.routeText(r, 'es') });
+      help: 'Te preguntan: «Disculpe, ¿cómo llego ' + aEs(p.es) + '?» Explica el camino con ' + (a.form === 'Sie' ? '«Sie» (adulto): Gehen Sie…, Nehmen Sie…' : '«du» (niño): Geh…, Nimm…') + ' Modelo: ' + M.routeText(r, 'es') });
   });
   [['Schule', '🚌', 'Ich fahre mit dem Bus zur Schule.', 'Voy en bus a la escuela.'], ['Park', '🚶', 'Ich gehe zu Fuß zum Park.', 'Voy a pie al parque.'],
    ['Schwimmbad', '🚲', 'Ich fahre mit dem Fahrrad zum Schwimmbad.', 'Voy en bicicleta a la piscina.'], ['Museum', '🚇', 'Ich fahre mit der U-Bahn zum Museum.', 'Voy en metro al museo.'],
@@ -285,7 +287,7 @@
     if (!p.map || p.map.side !== 'N') return;
     var q = M.opposite(p);
     oral.push({ id: 'o-wo-' + p.n, type: 'wo', mark: p.n, answer: q.n, prompt: 'Entschuldigung, wo ist ' + p.g + ' ' + p.n + '?', model: (p.g.charAt(0).toUpperCase() + p.g.slice(1)) + ' ' + p.n + ' ist gegenüber ' + D.dat(q) + ' ' + q.n + '.',
-      keys: ['gegenüber', q.n], help: '¿Dónde está ' + p.es + '? Busca en el mapa qué hay enfrente. Modelo: ' + p.es + ' está enfrente ' + deEs(q.es) + '.' });
+      keys: ['gegenüber', q.n], help: '¿Dónde está ' + p.es + '? Busca en el mapa qué hay enfrente. Modelo: ' + M.cap(p.es) + ' está enfrente ' + deEs(q.es) + '.' });
   });
 
   g.STADT_BANK = { items: items, oral: oral, deEs: deEs, aEs: aEs, uniqueOrder: uniqueOrder, mutations: mutations };

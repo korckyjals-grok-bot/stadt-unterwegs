@@ -1,4 +1,4 @@
-/* Lógica pura (sin DOM): puntaje, check verde, selección sin repetir. v1.0.0 */
+/* Lógica pura (sin DOM): puntaje, check verde, selección sin repetir. v1.0.1 (sin cambios de lógica) */
 (function (g) {
   'use strict';
   var CK = 'aleman_check_stadt', BK = 'stadt_best', TOPICS = ['orte', 'dativ', 'verkehr', 'weg'];

@@ -1,6 +1,6 @@
 /**
  * Optional German speechSynthesis. User gesture required. Cancel on navigation/next.
- * Adaptado de Wortschatz 1.2.1. Solo voces alemanas; sin voz alemana no habla (sin error).
+ * Adaptado de Wortschatz 1.2.1. Solo voces alemanas; sin voz alemana no habla y avisa (onNoVoice) después de esperar a que carguen las voces. v1.0.1
  */
 (function (global) {
   'use strict';
@@ -87,18 +87,36 @@
     } catch (e) {}
   }
 
-  function speak(text, opts) {
-    opts = opts || {};
-    if (!global.speechSynthesis) {
-      if (opts.onError) opts.onError(new Error('no speechSynthesis'));
-      return false;
-    }
-    if (!voice) pickGermanVoice();
-    if (!voice || !isGermanVoice(voice)) {
-      voice = null;
-      if (opts.onError) opts.onError(new Error('no German voice'));
-      return false;
-    }
+  /* Espera a que el navegador cargue sus voces (Chrome las entrega tarde y de forma asíncrona).
+     Solo después de esperar se concluye que no hay voz alemana. */
+  let waited = false;
+  let waiters = [];
+  const VOICE_WAIT_MS = 1500;
+  function voicesLoaded() {
+    try { return (speechSynthesis.getVoices() || []).length > 0; } catch (e) { return false; }
+  }
+  function whenVoicesReady(cb) {
+    if (voice || waited || voicesLoaded()) { cb(); return; }
+    waiters.push(cb);
+    if (waiters.length > 1) return; // ya hay una espera en curso
+    let done = false;
+    const finish = function () {
+      if (done) return;
+      done = true;
+      waited = true;
+      try { speechSynthesis.removeEventListener && speechSynthesis.removeEventListener('voiceschanged', onChange); } catch (e) {}
+      clearInterval(poll);
+      pickGermanVoice();
+      const list = waiters; waiters = [];
+      list.forEach(function (fn) { try { fn(); } catch (e) {} });
+    };
+    const onChange = function () { if (voicesLoaded()) finish(); };
+    try { speechSynthesis.addEventListener && speechSynthesis.addEventListener('voiceschanged', onChange); } catch (e) {}
+    const poll = setInterval(function () { if (voicesLoaded()) finish(); }, 100);
+    setTimeout(finish, VOICE_WAIT_MS);
+  }
+
+  function utter(text, opts) {
     cancel();
     try {
       const u = new SpeechSynthesisUtterance(String(text || ''));
@@ -108,9 +126,17 @@
       if (!/^de/i.test(u.lang)) u.lang = 'de-DE';
       u.rate = opts.rate || 0.92;
       u.pitch = 1;
+      let started = false;
+      u.onstart = function () { started = true; };
       if (opts.onEnd) u.onend = opts.onEnd;
-      if (opts.onError) u.onerror = opts.onError;
+      u.onerror = function (ev) { started = true; if (opts.onError) opts.onError(ev); };
       speechSynthesis.speak(u);
+      // Si la voz nunca arranca (voz remota caída, motor bloqueado), avisa en vez de quedar en silencio
+      setTimeout(function () {
+        try {
+          if (!started && !speechSynthesis.speaking && !speechSynthesis.pending && opts.onError) opts.onError({ error: 'no-start' });
+        } catch (e) {}
+      }, opts.startTimeout || 4000);
       return true;
     } catch (e) {
       if (opts.onError) opts.onError(e);
@@ -118,11 +144,39 @@
     }
   }
 
+  /* Devuelve true si habla o va a hablar en cuanto carguen las voces; false si ya se sabe que no hay voz alemana.
+     opts.onNoVoice se llama (una vez) cuando, tras esperar las voces, no hay voz alemana. Nunca usa una voz inglesa. */
+  function speak(text, opts) {
+    opts = opts || {};
+    const noVoice = function (why) {
+      if (opts.onNoVoice) opts.onNoVoice(why);
+      else if (opts.onError) opts.onError(new Error(why));
+    };
+    if (!global.speechSynthesis) {
+      noVoice('no speechSynthesis');
+      return false;
+    }
+    if (!voice) pickGermanVoice();
+    if (voice && isGermanVoice(voice)) return utter(text, opts);
+    voice = null;
+    if (waited || voicesLoaded()) {
+      noVoice('no German voice');
+      return false;
+    }
+    whenVoicesReady(function () {
+      if (voice && isGermanVoice(voice)) utter(text, opts);
+      else { voice = null; noVoice('no German voice'); }
+    });
+    return true;
+  }
+
   function resetForTests() {
     voice = null;
     ready = false;
     unsupported = false;
     listeners = [];
+    waited = false;
+    waiters = [];
   }
 
   init();

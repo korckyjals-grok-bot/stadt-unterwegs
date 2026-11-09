@@ -1,4 +1,4 @@
-/* Stadtplan: Geometrie, Routen-Simulation, Texte (du / Sie / es) und SVG. v1.0.0 */
+/* Stadtplan: Geometrie, Routen-Simulation, Texte (du / Sie / es) und SVG. v1.0.1 */
 (function (g) {
   'use strict';
   var D = g.STADT_DATA;
@@ -48,7 +48,7 @@
     var st = { c: h === 'E' ? m.s : m.s + 1, r: m.r, d: h, mid: true };
     if (h !== 'E' && h !== 'W') return { ok: false, err: 'heading' };
     var start = segMid({ o: 'H', r: m.r, s: m.s });
-    var pts = [start], marks = [], dest = null;
+    var pts = [start], marks = [], dest = null, acts = []; /* acts[i] = Kreuzung, an der Schritt i passiert */
     function fail(e, i) { return { ok: false, err: e, step: i, pts: pts, marks: marks }; }
     for (var i = 0; i < route.steps.length; i++) {
       var s = route.steps[i], v = DIRS[st.d];
@@ -82,11 +82,14 @@
       if (!has(st.c, st.r, st.d)) return fail('no-street', i);
       if (s.t === 'x') {
         if (!isCross(c, r, st.d)) return fail('not-crossing', i);
+        if (s.amp && !isAmpel(c, r)) return fail('no-ampel', i);
+        acts[i] = { c: c, r: r };
         st = { c: c, r: r, d: st.d, mid: false }; nd = node(c, r); marks.push(nd);
         continue;
       }
       if (s.t === 'k') {
         if (!isCross(c, r, st.d)) return fail('not-crossing', i);
+        acts[i] = { c: c, r: r };
         nd = node(c, r); pts.push(nd); marks.push(nd);
         st = { c: c, r: r, d: sideDir(st.d, s.s), mid: false };
         continue;
@@ -100,6 +103,7 @@
           c += v[0]; r += v[1];
         }
         if (!ok) return fail('no-such-street', i);
+        acts[i] = { c: c, r: r };
         nd = node(c, r); pts.push(nd); marks.push(nd);
         st = { c: c, r: r, d: sideDir(st.d, s.s), mid: false };
         continue;
@@ -114,6 +118,7 @@
         }
         if (!hit) return fail(s.t === 'a' ? 'no-ampel' : 'no-end', i);
         if (!has(c, r, sideDir(st.d, s.s))) return fail('cannot-turn', i);
+        acts[i] = { c: c, r: r };
         nd = node(c, r); pts.push(nd); marks.push(nd);
         st = { c: c, r: r, d: sideDir(st.d, s.s), mid: false };
         continue;
@@ -121,7 +126,7 @@
       return fail('unknown-step', i);
     }
     if (!dest) return fail('no-dest', route.steps.length);
-    return { ok: true, dest: dest, pts: pts, marks: marks, start: start, h: route.h };
+    return { ok: true, dest: dest, pts: pts, marks: marks, start: start, h: route.h, acts: acts };
   }
 
   /* Texte */
@@ -140,7 +145,8 @@
       case 't': return es ? 'Toma la ' + ORD_ES[s.k] + ' calle ' + sideEs(s.s) + '.' : nimm + ' die ' + ORD[s.k] + ' Straße ' + sideDe(s.s) + '.';
       case 'k': return es ? 'En el cruce, ve ' + sideEs(s.s) + '.' : geh + ' an der Kreuzung ' + sideDe(s.s) + '.';
       case 'a': return es ? 'En el semáforo, ve ' + sideEs(s.s) + '.' : geh + ' an der Ampel ' + sideDe(s.s) + '.';
-      case 'x': return es ? 'Pasa el cruce (sigue derecho).' : geh + ' über die Kreuzung.';
+      case 'x': if (s.amp) return es ? 'En el semáforo, sigue derecho (pasa el cruce).' : geh + ' an der Ampel geradeaus.';
+        return es ? 'Pasa el cruce (sigue derecho).' : geh + ' über die Kreuzung.';
       case 'e': return es ? 'Al final de la calle, ve ' + (s.w ? 'otra vez ' : '') + sideEs(s.s) + '.' : geh + ' am Ende der Straße ' + (s.w ? 'wieder ' : '') + sideDe(s.s) + '.';
       case 'b': p = D.place(s.p); return es ? 'Sigue derecho hasta ' + p.es + '.' : geh + ' geradeaus bis ' + D.zu(p) + ' ' + p.n + '.';
       case 'z': return null; /* braucht das Ziel */
@@ -152,10 +158,16 @@
     if (form === 'es') return 'Entonces ' + p.es + ' está ' + sideEs(s.s) + '.';
     return 'Dann ist ' + p.g + ' ' + p.n + ' ' + sideDe(s.s) + '.';
   }
-  function routeSteps(route, form) {
-    return route.steps.map(function (s) { return s.t === 'z' ? destText(route, s, form) : stepText(s, form); });
+  /* Für «Seguir indicaciones»: das Ziel wird NICHT genannt (sonst verrät der Text die Antwort) */
+  function destHiddenText(s, form) {
+    if (form === 'es') return 'Entonces el lugar está ' + sideEs(s.s) + '.';
+    return 'Dann ist es ' + sideDe(s.s) + '.';
+  }
+  function routeSteps(route, form, hide) {
+    return route.steps.map(function (s) { return s.t === 'z' ? (hide ? destHiddenText(s, form) : destText(route, s, form)) : stepText(s, form); });
   }
   function routeText(route, form) { return routeSteps(route, form).join(' '); }
+  function followText(route, form) { return routeSteps(route, form, true).join(' '); }
   function startText(route, form) {
     var p = D.place(route.start);
     if (form === 'es') return 'Estás delante ' + (/^el /.test(p.es) ? 'del ' + p.es.slice(3) : 'de ' + p.es) + '.';
@@ -169,7 +181,7 @@
   function svg(opt) {
     opt = opt || {};
     var o = [];
-    o.push('<svg class="map" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Stadtplan">');
+    o.push('<svg class="map" viewBox="0 0 ' + W + ' ' + H + '" role="img" lang="de" aria-label="Stadtplan">');
     o.push('<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e0561b"/></marker></defs>');
     o.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="26" fill="#cdeec4"/>');
     /* Blöcke */
@@ -234,7 +246,7 @@
 
   g.STADT_MAP = {
     X: X, Y: Y, W: W, H: H, simulate: simulate, stepText: stepText, routeSteps: routeSteps, routeText: routeText,
-    startText: startText, askText: askText, destText: destText, svg: svg, placeXY: placeXY, pillW: pillW, opposite: opposite,
+    startText: startText, askText: askText, destText: destText, destHiddenText: destHiddenText, followText: followText, svg: svg, placeXY: placeXY, pillW: pillW, opposite: opposite,
     relSide: relSide, isCross: isCross, isAmpel: isAmpel, leftOf: leftOf, rightOf: rightOf, cap: cap
   };
 })(typeof window !== 'undefined' ? window : globalThis);

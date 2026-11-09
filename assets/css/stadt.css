@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs v1.0.0 — mismo lenguaje visual que zu-dativ / gehen-verben / verkehrsmittel */
+/* In der Stadt unterwegs v1.0.1 — mismo lenguaje visual que zu-dativ / gehen-verben / verkehrsmittel */
 *{box-sizing:border-box}
 body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#fff6d6,#d9f2ff);color:#1f2a44;min-height:100vh}
 .wrap{max-width:760px;margin:0 auto;padding:16px}
@@ -63,3 +63,8 @@ svg.map{width:100%;height:auto;display:block;border-radius:20px;touch-action:man
 @media (max-width:420px){.wrap{padding:10px}.card{padding:14px}h1{font-size:1.5rem}.btn{font-size:1.15rem}.q{font-size:1.18rem}.sen{font-size:1.2rem}.steps li{font-size:1.1rem}}
 .seg{display:flex;gap:8px;margin:4px 0 8px}.seg .btn{flex:1;min-width:0;font-size:1.05rem;padding:10px 6px;margin:4px 0}
 .actions.stick{position:sticky}
+/* v1.0.1 — «Desafío 60 s»: la «s» no queda sola (&nbsp; en el HTML) y en teléfono cabe en una línea con menos relleno lateral */
+@media (max-width:420px){#home .row .btn{padding-left:8px;padding-right:8px;min-width:0}}
+/* v1.0.1 — el mensaje y la explicación nunca quedan tapados por la barra fija */
+.msg,.exp,.help,.model,.heard{scroll-margin-bottom:110px}
+.actions.stick{box-shadow:0 -6px 12px -8px rgba(31,42,68,.25)}

@@ -3,14 +3,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Alemán: In der Stadt unterwegs</title>
-<link rel="icon" href="assets/favicon.svg?v=1.0.0" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/stadt.css?v=1.0.0">
+<link rel="icon" href="assets/favicon.svg?v=1.0.1" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/stadt.css?v=1.0.1">
 </head><body><div class="wrap">
-<p style="margin:0"><a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/">⬅️ Alemán</a></p>
+<p style="margin:0"><a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/" title="Volver a todas las apps de alemán" aria-label="Volver a todas las apps de alemán">⬅️ Alemán</a></p>
 <h1>🏙️ In der Stadt unterwegs</h1>
 
 <div id="home" class="card">
-<p style="font-size:1.15rem;text-align:center">¡Hola, <span class="nm">amiguito</span>! Practica para el <b>examen oral</b>: lugares, <span class="de">Dativ</span>, <span class="de">Verkehrsmittel</span> y cómo pedir y dar indicaciones en una ciudad. <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar apodo</a></p>
+<p style="font-size:1.15rem;text-align:center">¡Hola, <span class="nm">amiguito</span>! Practica para el <b>examen oral</b>: lugares, <span class="de" lang="de">Dativ</span>, <span class="de" lang="de">Verkehrsmittel</span> y cómo pedir y dar indicaciones en una ciudad. <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar apodo</a></p>
 <button class="btn g" id="bStudy">📖 Estudiar</button>
 <div class="topics" id="topics">
 <label><input type="checkbox" value="orte" checked>🏙️ Orte: der / die / das · zum / zur<span class="chk no" data-t="orte">✔</span></label>
@@ -18,9 +18,9 @@
 <label><input type="checkbox" value="verkehr" checked>🚌 Verkehrsmittel: gehen / fahren · mit dem / mit der<span class="chk no" data-t="verkehr">✔</span></label>
 <label><input type="checkbox" value="weg" checked>🧭 Wegbeschreibungen: links, rechts, geradeaus…<span class="chk no" data-t="weg">✔</span></label>
 </div>
-<div class="row"><button class="btn" id="bPractice">✏️ Practicar</button><button class="btn o" id="bChal">⏱️ Desafío 60 s</button></div>
+<div class="row"><button class="btn" id="bPractice">✏️ Practicar</button><button class="btn o" id="bChal">⏱️ Desafío&nbsp;60&nbsp;s</button></div>
 <button class="btn p" id="bOral">🎤 Oral: hablar como en el examen</button>
-<p style="text-align:center;font-size:1.05rem">✅ Desafío con <b>13 o más y sin errores</b> = check verde por tema.<br>🏆 Récord: <b id="best">0</b><br><span class="hint">En el desafío solo hay opción múltiple rápida (sin mapa ni fichas). Solo práctica: no hay notas.</span></p>
+<p style="text-align:center;font-size:1.05rem">✅ Desafío con <b>13 o más y sin errores</b> = marca verde ✔ por tema.<br>🏆 Récord: <b id="best">0</b><br><span class="hint">En el desafío solo hay opción múltiple rápida (sin mapa ni fichas). Solo práctica: no hay notas.</span></p>
 </div>
 
 <div id="study" class="card hid">
@@ -30,7 +30,7 @@
   <div class="row" style="align-items:center"><button class="btn gray" id="rPrev" style="flex:0 0 64px;min-width:64px">⬅️</button><div style="flex:1;text-align:center;font-weight:800;font-size:1.15rem" id="rTitle"></div><button class="btn gray" id="rNext" style="flex:0 0 64px;min-width:64px">➡️</button></div>
   <p class="hint" style="margin:6px 0 0">¿Con quién hablas?</p>
   <div class="seg"><button class="btn" id="fDu">🧒 du (amigo)</button><button class="btn gray" id="fSie">🧑‍💼 Sie (adulto)</button></div>
-  <div class="sen"><span class="tx"><span class="de" id="rAsk"></span></span><button class="say" id="rAskSay" aria-label="Escuchar">🔊</button></div>
+  <div class="sen"><span class="tx"><span class="de" lang="de" id="rAsk"></span></span><button class="say" id="rAskSay" aria-label="Escuchar">🔊</button></div>
   <div class="mapbox" id="rMap"></div>
   <p class="legend">⭐ Du bist hier · 🚦 Ampel · los números = pasos</p>
   <ol class="steps" id="rSteps"></ol>
@@ -52,7 +52,7 @@
 <p style="margin:6px 0"><span class="tag" id="tg"></span></p>
 <div class="q" id="qt"></div>
 <div class="pic hid" id="pic"></div>
-<div id="sen" class="sen hid"><span class="tx de" id="senTx"></span><button class="say" id="senSay" aria-label="Escuchar">🔊</button></div>
+<div id="sen" class="sen hid"><span class="tx de" lang="de" id="senTx"></span><button class="say" id="senSay" aria-label="Escuchar">🔊</button></div>
 <div class="mapbox hid" id="pMap"></div>
 <div id="opts"></div>
 <div id="msg" class="msg" aria-live="polite"></div>
@@ -76,7 +76,7 @@
 <div id="oCard" class="hid">
   <div class="stats"><span id="oCnt"></span><span>⭐ Practicadas: <span id="oDone">0</span></span></div>
   <div class="who" id="oWho"></div>
-  <div class="sen"><span class="tx de" id="oPrompt"></span><button class="say" id="oSay" aria-label="Escuchar">🔊</button></div>
+  <div class="sen"><span class="tx de" lang="de" id="oPrompt"></span><button class="say" id="oSay" aria-label="Escuchar">🔊</button></div>
   <p class="q" id="oTask" style="font-size:1.12rem"></p>
   <div class="pic hid" id="oPic"></div>
   <div class="mapbox hid" id="oMap"></div>
@@ -93,7 +93,7 @@
 <div id="sum" class="card hid"><h2 id="sumT"></h2><p id="sumP" style="font-size:1.15rem"></p><div id="sumL"></div>
 <button class="btn o hid" id="rep">🔁 Repasar errores</button>
 <button class="btn" data-home>🏠 Inicio</button></div>
-<p class="hint">v1.0.0 · Solo práctica · <a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/">⬅️ Alemán</a></p>
+<p class="hint">v1.0.1 · Solo práctica · <a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/" title="Volver a todas las apps de alemán" aria-label="Volver a todas las apps de alemán">⬅️ Alemán</a></p>
 </div>
 
 <div id="nmBox" style="display:none;position:fixed;inset:0;background:rgba(31,42,68,.55);z-index:99;align-items:center;justify-content:center;padding:16px">
@@ -119,10 +119,10 @@ try{localStorage.setItem(K,v)}catch(e){}document.getElementById("nmBox").style.d
 apply();
 })();
 </script>
-<script src="assets/js/data.js?v=1.0.0"></script>
-<script src="assets/js/map.js?v=1.0.0"></script>
-<script src="assets/js/bank.js?v=1.0.0"></script>
-<script src="assets/js/speech.js?v=1.0.0"></script>
-<script src="assets/js/engine.js?v=1.0.0"></script>
-<script src="assets/js/app.js?v=1.0.0"></script>
+<script src="assets/js/data.js?v=1.0.1"></script>
+<script src="assets/js/map.js?v=1.0.1"></script>
+<script src="assets/js/bank.js?v=1.0.1"></script>
+<script src="assets/js/speech.js?v=1.0.1"></script>
+<script src="assets/js/engine.js?v=1.0.1"></script>
+<script src="assets/js/app.js?v=1.0.1"></script>
 </body></html>
