@@ -1,0 +1,65 @@
+/* In der Stadt unterwegs v1.0.0 — mismo lenguaje visual que zu-dativ / gehen-verben / verkehrsmittel */
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#fff6d6,#d9f2ff);color:#1f2a44;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{text-align:center;font-size:1.85rem;margin:10px 0}h2{font-size:1.45rem;margin:8px 0}h3{margin:10px 0 6px}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,.1);margin:14px 0}
+.btn{display:block;width:100%;font-size:1.25rem;padding:16px;margin:8px 0;border:0;border-radius:16px;cursor:pointer;color:#fff;background:#2b8de2;font-weight:700;min-height:52px;touch-action:manipulation;font-family:inherit}
+.btn.g{background:#22a35a}.btn.o{background:#f08a24}.btn.r{background:#c7362b}.btn.gray{background:#8a94a8}.btn.p{background:#7b4fd6}.btn.y{background:#ffbf00;color:#1f2a44}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row .btn{flex:1;min-width:140px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs .btn{flex:1;min-width:96px;font-size:1.02rem;padding:10px 8px;min-height:48px}
+.topics label{display:block;font-size:1.2rem;padding:12px;background:#e8f3ff;border-radius:12px;margin:6px 0;cursor:pointer}
+.topics input{transform:scale(1.5);margin-right:12px}
+.q{font-size:1.3rem;font-weight:700;margin:6px 0 10px;word-wrap:break-word}
+.opt{background:#eef1f6;color:#1f2a44;text-align:left}.opt.long{font-size:1.08rem;font-weight:600;line-height:1.35}
+.opt.ok{background:#22a35a;color:#fff}.opt.bad{background:#c7362b;color:#fff}
+.exp{font-size:1.1rem;background:#fff6d6;border-left:6px solid #ffbf00;padding:12px;border-radius:10px;margin-top:10px}
+.help{font-size:1.05rem;background:#eef7ff;border-left:6px solid #2b8de2;padding:10px 12px;border-radius:10px;margin:10px 0}
+.stats{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;flex-wrap:wrap;gap:8px}
+.tag{display:inline-block;padding:4px 10px;border-radius:10px;background:#ffd9cc;font-size:.95rem;font-weight:700}
+.fc{min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:1.35rem;cursor:pointer;background:#e8f3ff;padding:16px;line-height:1.45}
+.fc .big{font-size:1.7rem;font-weight:800;color:#1f5fd1}
+.timer{font-size:2rem;text-align:center;font-weight:800;color:#c7362b}.hid{display:none!important}
+.msg{font-size:1.25rem;text-align:center;font-weight:700;min-height:1.6em}
+ul{font-size:1.05rem}li{margin:6px 0}
+.chk{display:inline-block;margin-left:10px;background:#22a35a;color:#fff;border-radius:50%;width:2rem;height:2rem;line-height:2rem;text-align:center;font-size:1.3rem;font-weight:900;vertical-align:middle}.chk.no{display:none}
+.sen{font-size:1.35rem;background:#f4f7fb;border-radius:14px;padding:12px 14px;margin:0 0 12px;line-height:1.45;display:flex;gap:10px;align-items:flex-start}
+.sen .tx{flex:1}.sen .de{color:#1f2a44;font-weight:700}
+.pic{font-size:3.4rem;text-align:center;line-height:1.2;margin:4px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.chip{font-size:1.15rem;padding:12px 14px;border:0;border-radius:12px;background:#e8f3ff;color:#1f2a44;font-weight:700;cursor:pointer;min-height:48px;font-family:inherit;text-align:left}.chip:disabled{opacity:.3}
+.built{min-height:3.2rem;font-size:1.2rem;background:#fff6d6;border-radius:12px;padding:10px;text-align:center;font-weight:700;line-height:1.45}
+.de{font-weight:800;color:#1f5fd1}.hint{font-size:1rem;color:#5a6478;text-align:center}
+a.back{color:#2b8de2;font-weight:700;text-decoration:none}
+.say{flex:none;border:0;border-radius:12px;background:#2b8de2;color:#fff;font-size:1.2rem;min-width:48px;min-height:48px;cursor:pointer;font-family:inherit}
+.say.wide{width:auto;padding:0 14px;font-weight:700;font-size:1.05rem}
+/* Mapa */
+.mapbox{margin:8px auto;max-width:520px}
+svg.map{width:100%;height:auto;display:block;border-radius:20px;touch-action:manipulation}
+.place .pbg{fill:#fff;stroke:#2b8de2;stroke-width:3}
+.place .pn{fill:#1f2a44}
+.tapmap .place{cursor:pointer}.tapmap .place:hover .pbg,.tapmap .place:focus .pbg{fill:#e8f3ff;stroke-width:5}
+.place.target .pbg{fill:#fff1dc;stroke:#f08a24;stroke-width:6}
+.place.ok .pbg{fill:#c9f1d8;stroke:#22a35a;stroke-width:6}
+.place.bad .pbg{fill:#ffd6d1;stroke:#c7362b;stroke-width:6}
+.num circle{fill:#1f5fd1;stroke:#fff;stroke-width:3}.num text{fill:#fff}
+.num.active circle{fill:#f08a24}
+.legend{font-size:1rem;text-align:center;color:#3b4660;margin:4px 0 8px}
+.steps{list-style:none;padding:0;margin:8px 0}
+.steps li{display:flex;gap:10px;align-items:flex-start;background:#f4f7fb;border-radius:14px;padding:10px;margin:8px 0;font-size:1.2rem;cursor:pointer}
+.steps li.active{background:#fff1dc;outline:3px solid #f08a24}
+.steps .n{flex:none;background:#1f5fd1;color:#fff;border-radius:50%;width:2.1rem;height:2.1rem;line-height:2.1rem;text-align:center;font-weight:800}
+.steps .tx{flex:1}.steps .es{display:block;font-size:1rem;color:#5a6478;margin-top:4px}
+.form{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:800;font-size:.95rem;background:#e8f3ff;color:#1f5fd1}
+.form.sie{background:#efe6ff;color:#5b37b0}
+.who{font-size:1.25rem;font-weight:800;margin:4px 0}
+.model{font-size:1.25rem;background:#e9f9ef;border-left:6px solid #22a35a;padding:12px;border-radius:10px;margin:10px 0;line-height:1.5}
+.heard{font-size:1.05rem;background:#f4f0ff;border-left:6px solid #7b4fd6;padding:10px 12px;border-radius:10px;margin:10px 0}
+/* Botones siempre al alcance (como Wortschatz 1.2.1) */
+.actions{position:static;bottom:0;z-index:5;padding:10px 0 12px;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.97) 28%)}
+.actions .row{gap:8px}.actions .btn{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#1f2a44;color:#fff;padding:12px 18px;border-radius:14px;font-size:1.05rem;z-index:100;max-width:92vw;text-align:center}
+@media (max-width:420px){.wrap{padding:10px}.card{padding:14px}h1{font-size:1.5rem}.btn{font-size:1.15rem}.q{font-size:1.18rem}.sen{font-size:1.2rem}.steps li{font-size:1.1rem}}
+.seg{display:flex;gap:8px;margin:4px 0 8px}.seg .btn{flex:1;min-width:0;font-size:1.05rem;padding:10px 6px;margin:4px 0}
+.actions.stick{position:sticky}
