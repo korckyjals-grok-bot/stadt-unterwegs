@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs — Inhalte (Deutsch) + Hilfe (Spanisch). v1.0.1 */
+/* In der Stadt unterwegs — Inhalte (Deutsch) + Hilfe (Spanisch). v1.0.2 */
 (function (g) {
   'use strict';
   /* Orte: n = Name, g = Genus, i = Icon, es = Hilfe, map = Platz auf der Karte {r: Straße (Reihe 0-3), s: Abschnitt (0 links, 1 rechts), side: N/S} */
@@ -53,7 +53,7 @@
     { id: 'r4', start: 'Park', h: 'W', dest: 'Supermarkt', steps: [{ t: 'g' }, { t: 't', k: 1, s: 'L' }, { t: 'a', s: 'R' }, { t: 'z', s: 'L' }] },
     { id: 'r5', start: 'Bank', h: 'E', dest: 'Eisdiele', steps: [{ t: 'x', amp: true }, { t: 'e', s: 'L' }, { t: 't', k: 1, s: 'L' }, { t: 'z', s: 'R' }] },
     { id: 'r6', start: 'Krankenhaus', h: 'W', dest: 'Schule', steps: [{ t: 'a', s: 'L' }, { t: 'e', s: 'R' }, { t: 'z', s: 'R' }] },
-    { id: 'r7', start: 'Post', h: 'W', dest: 'Bank', steps: [{ t: 'e', s: 'L' }, { t: 't', k: 2, s: 'L' }, { t: 'z', s: 'L' }] },
+    { id: 'r7', start: 'Post', h: 'W', dest: 'Bank', steps: [{ t: 'e', s: 'L' }, { t: 'x', amp: true }, { t: 't', k: 1, s: 'L' }, { t: 'z', s: 'L' }] },
     { id: 'r8', start: 'Eisdiele', h: 'W', dest: 'Kino', steps: [{ t: 'k', s: 'R' }, { t: 'e', s: 'R' }, { t: 'z', s: 'R' }] },
     { id: 'r9', start: 'Schwimmbad', h: 'W', dest: 'Bäckerei', steps: [{ t: 'b', p: 'Schule' }, { t: 'e', s: 'R' }, { t: 'a', s: 'R' }, { t: 'z', s: 'L' }] },
     { id: 'r10', start: 'Bushaltestelle', h: 'E', dest: 'Krankenhaus', steps: [{ t: 'e', s: 'L' }, { t: 't', k: 1, s: 'L' }, { t: 'z', s: 'L' }] },
@@ -117,7 +117,7 @@
     ]
   };
 
-  var D = { PLACES: PLACES, VEHICLES: VEHICLES, ROUTES: ROUTES, CARDS: CARDS, AMPELN: AMPELN, VERSION: '1.0.1' };
+  var D = { PLACES: PLACES, VEHICLES: VEHICLES, ROUTES: ROUTES, CARDS: CARDS, AMPELN: AMPELN, VERSION: '1.0.2' };
   D.place = function (n) { for (var i = 0; i < PLACES.length; i++) if (PLACES[i].n === n) return PLACES[i]; return null; };
   D.zu = function (p) { return p.g === 'die' ? 'zur' : 'zum'; };
   D.dat = function (p) { return p.g === 'die' ? 'der' : 'dem'; };

@@ -1,4 +1,4 @@
-/* Stadtplan: Geometrie, Routen-Simulation, Texte (du / Sie / es) und SVG. v1.0.1 */
+/* Stadtplan: Geometrie, Routen-Simulation, Texte (du / Sie / es) und SVG. v1.0.2 */
 (function (g) {
   'use strict';
   var D = g.STADT_DATA;
@@ -81,8 +81,11 @@
       if (!st.mid) { c = st.c + v[0]; r = st.r + v[1]; }
       if (!has(st.c, st.r, st.d)) return fail('no-street', i);
       if (s.t === 'x') {
-        if (!isCross(c, r, st.d)) return fail('not-crossing', i);
-        if (s.amp && !isAmpel(c, r)) return fail('no-ampel', i);
+        /* v1.0.2: «an der Ampel geradeaus» vale también en un cruce en T (la calle sigue derecho y sale una calle a un lado) */
+        if (s.amp) {
+          if (!isAmpel(c, r)) return fail('no-ampel', i);
+          if (!has(c, r, st.d) || !(has(c, r, leftOf(st.d)) || has(c, r, rightOf(st.d)))) return fail('not-crossing', i);
+        } else if (!isCross(c, r, st.d)) return fail('not-crossing', i);
         acts[i] = { c: c, r: r };
         st = { c: c, r: r, d: st.d, mid: false }; nd = node(c, r); marks.push(nd);
         continue;

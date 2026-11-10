@@ -3,8 +3,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Alemán: In der Stadt unterwegs</title>
-<link rel="icon" href="assets/favicon.svg?v=1.0.1" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/stadt.css?v=1.0.1">
+<link rel="icon" href="assets/favicon.svg?v=1.0.2" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/stadt.css?v=1.0.2">
 </head><body><div class="wrap">
 <p style="margin:0"><a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/" title="Volver a todas las apps de alemán" aria-label="Volver a todas las apps de alemán">⬅️ Alemán</a></p>
 <h1>🏙️ In der Stadt unterwegs</h1>
@@ -79,13 +79,16 @@
   <div class="sen"><span class="tx de" lang="de" id="oPrompt"></span><button class="say" id="oSay" aria-label="Escuchar">🔊</button></div>
   <p class="q" id="oTask" style="font-size:1.12rem"></p>
   <div class="pic hid" id="oPic"></div>
-  <div class="mapbox hid" id="oMap"></div>
+  <!-- v1.0.2: los controles van antes del mapa para que Hablar, Ver modelo y Ayuda nunca queden debajo de la barra fija -->
+  <div id="oCtl">
+  <div class="row"><button class="btn p" id="oMic">🎤 Hablar</button><button class="btn" id="oShow">💡 Ver modelo</button></div>
+  <div class="row"><button class="btn gray hid" id="oPath">🧭 Ver camino</button><button class="btn y" id="oHelpB">🆘 Ayuda</button></div>
+  </div>
   <div id="oHeard" class="heard hid" aria-live="polite"></div>
   <div id="oModel" class="model hid"></div>
   <div id="oHelp" class="help hid"></div>
-  <div class="row"><button class="btn p" id="oMic">🎤 Hablar</button><button class="btn" id="oShow">💡 Ver modelo</button></div>
-  <div class="row"><button class="btn gray hid" id="oPath">🧭 Ver camino</button><button class="btn y" id="oHelpB">🆘 Ayuda</button></div>
-  <div class="actions stick"><div class="row"><button class="btn o" id="oAgain">🔁 Otra vez</button><button class="btn g" id="oNext">Weiter ➡️</button></div></div>
+  <div class="mapbox hid" id="oMap"></div>
+  <div class="actions stick" id="oAct"><div class="row"><button class="btn o" id="oAgain">🔁 Otra vez</button><button class="btn g" id="oNext">Weiter ➡️</button></div></div>
   <button class="btn r" id="oBack">⬅️ Menú oral</button>
 </div>
 </div>
@@ -93,7 +96,7 @@
 <div id="sum" class="card hid"><h2 id="sumT"></h2><p id="sumP" style="font-size:1.15rem"></p><div id="sumL"></div>
 <button class="btn o hid" id="rep">🔁 Repasar errores</button>
 <button class="btn" data-home>🏠 Inicio</button></div>
-<p class="hint">v1.0.1 · Solo práctica · <a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/" title="Volver a todas las apps de alemán" aria-label="Volver a todas las apps de alemán">⬅️ Alemán</a></p>
+<p class="hint">v1.0.2 · Solo práctica · <a class="back" href="https://korckyjals-grok-bot.github.io/aleman/" data-app="https://korckyjals-grok-bot.github.io/aleman/" title="Volver a todas las apps de alemán" aria-label="Volver a todas las apps de alemán">⬅️ Alemán</a></p>
 </div>
 
 <div id="nmBox" style="display:none;position:fixed;inset:0;background:rgba(31,42,68,.55);z-index:99;align-items:center;justify-content:center;padding:16px">
@@ -119,10 +122,10 @@ try{localStorage.setItem(K,v)}catch(e){}document.getElementById("nmBox").style.d
 apply();
 })();
 </script>
-<script src="assets/js/data.js?v=1.0.1"></script>
-<script src="assets/js/map.js?v=1.0.1"></script>
-<script src="assets/js/bank.js?v=1.0.1"></script>
-<script src="assets/js/speech.js?v=1.0.1"></script>
-<script src="assets/js/engine.js?v=1.0.1"></script>
-<script src="assets/js/app.js?v=1.0.1"></script>
+<script src="assets/js/data.js?v=1.0.2"></script>
+<script src="assets/js/map.js?v=1.0.2"></script>
+<script src="assets/js/bank.js?v=1.0.2"></script>
+<script src="assets/js/speech.js?v=1.0.2"></script>
+<script src="assets/js/engine.js?v=1.0.2"></script>
+<script src="assets/js/app.js?v=1.0.2"></script>
 </body></html>
