@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs v1.0.2 — mismo lenguaje visual que zu-dativ / gehen-verben / verkehrsmittel */
+/* In der Stadt unterwegs v1.0.3 — mismo lenguaje visual que zu-dativ / gehen-verben / verkehrsmittel */
 *{box-sizing:border-box}
 body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#fff6d6,#d9f2ff);color:#1f2a44;min-height:100vh}
 .wrap{max-width:760px;margin:0 auto;padding:16px}
@@ -68,3 +68,29 @@ svg.map{width:100%;height:auto;display:block;border-radius:20px;touch-action:man
 /* v1.0.1 — el mensaje y la explicación nunca quedan tapados por la barra fija */
 .msg,.exp,.help,.model,.heard{scroll-margin-bottom:110px}
 .actions.stick{box-shadow:0 -6px 12px -8px rgba(31,42,68,.25)}
+
+/* v1.0.3 — Oral: el mapa cabe en el hueco sobre la barra fija; ⭐ visible al entrar */
+#oMap svg.map{max-height:var(--oral-map-max, none);max-width:100%;height:auto}
+#oCard{padding-bottom:96px}
+body.oral-play #oMap{display:flex;justify-content:center;margin-bottom:8px}
+/* En pantallas bajas se compacta solo el Oral (otros modos no cambian) */
+@media (max-height:900px){
+  body.oral-play h1{font-size:1.35rem;margin:4px 0 2px}
+  body.oral-play .wrap{padding-top:8px;padding-bottom:8px}
+  body.oral-play #oral.card{margin:8px 0;padding:12px 14px 96px}
+  body.oral-play #oral h2{margin:0 0 4px;font-size:1.25rem}
+  body.oral-play #oral .stats{font-size:1.02rem;gap:4px}
+  body.oral-play #oral .who{font-size:1.08rem;margin:0 0 2px}
+  body.oral-play #oral .sen{padding:8px 10px;margin:0 0 6px;font-size:1.15rem}
+  body.oral-play #oral #oTask{margin:2px 0 6px;font-size:1.05rem}
+  body.oral-play #oral #oCtl .btn{padding:10px 8px;min-height:48px;margin:4px 0;font-size:1.08rem}
+}
+@media (max-width:420px) and (max-height:860px){
+  body.oral-play h1{font-size:1.2rem;margin:2px 0 0}
+  body.oral-play #oral.card{padding:10px 12px 96px;margin:6px 0}
+  body.oral-play #oral h2{font-size:1.15rem;margin:0 0 2px}
+  body.oral-play #oral .who{font-size:1.02rem}
+  body.oral-play #oral .sen{padding:6px 8px;margin:0 0 4px;font-size:1.08rem}
+  body.oral-play #oral #oTask{font-size:1rem;margin:0 0 4px}
+  body.oral-play #oral #oCtl .btn{padding:8px 6px;min-height:48px;font-size:1.02rem}
+}

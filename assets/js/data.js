@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs — Inhalte (Deutsch) + Hilfe (Spanisch). v1.0.2 */
+/* In der Stadt unterwegs — Inhalte (Deutsch) + Hilfe (Spanisch). v1.0.3 */
 (function (g) {
   'use strict';
   /* Orte: n = Name, g = Genus, i = Icon, es = Hilfe, map = Platz auf der Karte {r: Straße (Reihe 0-3), s: Abschnitt (0 links, 1 rechts), side: N/S} */
@@ -117,7 +117,7 @@
     ]
   };
 
-  var D = { PLACES: PLACES, VEHICLES: VEHICLES, ROUTES: ROUTES, CARDS: CARDS, AMPELN: AMPELN, VERSION: '1.0.2' };
+  var D = { PLACES: PLACES, VEHICLES: VEHICLES, ROUTES: ROUTES, CARDS: CARDS, AMPELN: AMPELN, VERSION: '1.0.3' };
   D.place = function (n) { for (var i = 0; i < PLACES.length; i++) if (PLACES[i].n === n) return PLACES[i]; return null; };
   D.zu = function (p) { return p.g === 'die' ? 'zur' : 'zum'; };
   D.dat = function (p) { return p.g === 'die' ? 'der' : 'dem'; };
