@@ -1,4 +1,4 @@
-/* In der Stadt unterwegs — interfaz. v1.0.3 */
+/* In der Stadt unterwegs — interfaz. v1.0.4 */
 (function () {
   'use strict';
   var D = window.STADT_DATA, M = window.STADT_MAP, B = window.STADT_BANK, E = window.STADT_ENGINE;
@@ -50,13 +50,15 @@
       if (dy > 0) window.scrollBy(0, dy);
     } catch (e) {}
   }
-  /* v1.0.3 — Oral: clase de maquetado compacto mientras la tarjeta está abierta */
+  /* v1.0.4 — Oral: clase de maquetado compacto mientras la tarjeta está abierta */
   function syncOralPlay() {
     var on = $('oral') && !$('oral').classList.contains('hid') && $('oCard') && !$('oCard').classList.contains('hid');
     document.body.classList.toggle('oral-play', !!on);
   }
-  /* Ajusta el mapa al hueco entre su borde superior y la barra fija Otra vez/Weiter,
-     para que la ⭐ de salida quede entera a la vista al entrar, sin desplazar. */
+  /* Ancho mínimo del mapa de Oral: rótulos de ~9 px (viewBox 660, font-size 20). */
+  var ORAL_MIN_MAP_W = 250;
+  /* Ajusta el mapa al hueco sobre la barra fija. No lo encoge por debajo del mínimo
+     legible: si no cabe entero, se desplaza para dejar la ⭐ sobre la barra. */
   function fitOralMap() {
     var box = $('oMap');
     if (!box || box.classList.contains('hid')) return;
@@ -68,16 +70,18 @@
        ya está encogido, la barra deja de ser sticky y un recálculo la iría comiendo. */
     var barH = bar ? bar.offsetHeight : 84;
     var avail = Math.floor(window.innerHeight - top - barH - 10);
-    if (avail < 80) return;
-    var boxW = box.clientWidth || Math.floor(box.getBoundingClientRect().width);
-    var h = avail, w = h * 660 / 860;
+    var boxW = box.clientWidth || Math.floor(box.getBoundingClientRect().width) || window.innerWidth;
+    var minW = Math.min(ORAL_MIN_MAP_W, boxW);
+    var minH = minW * 860 / 660;
+    var h = (avail > 0 ? avail : minH), w = h * 660 / 860;
     if (boxW > 0 && w > boxW) { w = boxW; h = w * 860 / 660; }
+    if (w < minW) { w = minW; h = minH; }
     box.style.setProperty('--oral-map-max', Math.floor(h) + 'px');
     svg.style.maxHeight = Math.floor(h) + 'px';
     svg.style.width = Math.floor(w) + 'px';
     svg.style.height = 'auto';
   }
-  function revealOralStar() {
+  function revealOralStar(priorityEl) {
     try {
       var you = $('oMap') && $('oMap').querySelector('g.you');
       var bar = $('oAct');
@@ -85,26 +89,25 @@
       var r = you.getBoundingClientRect();
       var limit = bar.getBoundingClientRect().top - 4;
       if (r.bottom <= limit && r.top >= 0) return;
-      /* Si aún queda cubierta, encoge un poco más el mapa (no desplazamos la página:
-         Hablar / Ver modelo / Ayuda deben seguir a la vista). */
-      var box = $('oMap'), svg = box && box.querySelector('svg.map');
-      if (!svg) return;
-      var overflow = r.bottom - limit;
-      var cur = svg.getBoundingClientRect().height;
-      var next = Math.max(80, Math.floor(cur - overflow - 4));
-      var w = next * 660 / 860, boxW = box.clientWidth || Math.floor(box.getBoundingClientRect().width);
-      if (boxW > 0 && w > boxW) { w = boxW; next = w * 860 / 660; }
-      box.style.setProperty('--oral-map-max', Math.floor(next) + 'px');
-      svg.style.maxHeight = Math.floor(next) + 'px';
-      svg.style.width = Math.floor(w) + 'px';
+      /* No encoger por debajo del mínimo. Desplazar para dejar la ⭐ sobre la barra.
+         Si hay un bloque recién abierto (Ayuda / modelo / micrófono), no lo subimos
+         por encima de la ventana. */
+      var dy = r.bottom - limit;
+      if (priorityEl && !priorityEl.classList.contains('hid')) {
+        var top = priorityEl.getBoundingClientRect().top;
+        if (dy > 0 && top - dy < 8) dy = Math.max(0, top - 8);
+      }
+      if (dy) window.scrollBy(0, dy);
     } catch (e) {}
   }
-  function scheduleOralFit() {
+  function scheduleOralFit(priorityEl) {
     syncOralPlay();
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         fitOralMap();
-        revealOralStar();
+        if (priorityEl) oClear(priorityEl);
+        revealOralStar(priorityEl);
+        if (!priorityEl) oClear($('oCtl'));
       });
     });
   }
@@ -322,9 +325,8 @@
     $('oPath').classList.toggle('hid', o.type !== 'erklaeren'); $('oPath').textContent = '🧭 Ver camino';
     $('oMic').classList.toggle('hid', !(LS && LS.supported));
     oralMap(false, false);
-    /* v1.0.2: cada tarjeta empieza arriba y la fila de Ayuda queda libre de la barra fija */
-    /* v1.0.3: el mapa se ajusta al hueco sobre la barra para que se vea la ⭐ sin desplazar */
-    window.scrollTo(0, 0); syncOralPlay(); oClear($('oCtl')); scheduleOralFit();
+    /* v1.0.4: el mapa tiene un tamaño mínimo legible; si hace falta, se desplaza a la ⭐ */
+    window.scrollTo(0, 0); syncOralPlay(); scheduleOralFit();
   }
   function oralMap(path, reveal) {
     var o = oList[oI], box = $('oMap');
@@ -344,19 +346,19 @@
     $('oModelSay').onclick = function () { speak(o.model); };
     if (o.type === 'erklaeren') { oPathOn = true; $('oPath').textContent = '🙈 Ocultar camino'; }
     oralMap(oPathOn, true);
-    scheduleOralFit(); oClear($('oModel'));
+    scheduleOralFit($('oModel'));
     speak(o.model);
   }
   $('oShow').onclick = showModel;
   $('oSay').onclick = function () { speak(oList[oI].prompt); };
-  $('oPath').onclick = function () { oPathOn = !oPathOn; $('oPath').textContent = oPathOn ? '🙈 Ocultar camino' : '🧭 Ver camino'; oralMap(oPathOn, !$('oModel').classList.contains('hid')); scheduleOralFit(); if (oPathOn) oClear($('oMap')); };
-  $('oHelpB').onclick = function () { oHelpOn = !oHelpOn; $('oHelp').classList.toggle('hid', !oHelpOn); $('oHelpB').textContent = oHelpOn ? '🙈 Ocultar ayuda' : '🆘 Ayuda'; scheduleOralFit(); oClear($('oHelp')); };
+  $('oPath').onclick = function () { oPathOn = !oPathOn; $('oPath').textContent = oPathOn ? '🙈 Ocultar camino' : '🧭 Ver camino'; oralMap(oPathOn, !$('oModel').classList.contains('hid')); scheduleOralFit(oPathOn ? $('oMap') : null); };
+  $('oHelpB').onclick = function () { oHelpOn = !oHelpOn; $('oHelp').classList.toggle('hid', !oHelpOn); $('oHelpB').textContent = oHelpOn ? '🙈 Ocultar ayuda' : '🆘 Ayuda'; scheduleOralFit(oHelpOn ? $('oHelp') : null); };
   $('oNext').onclick = function () { oDone++; oI = (oI + 1) % oList.length; if (oI === 0) oList = E.shuffle(oList); drawOral(); };
   $('oAgain').onclick = function () { $('oHeard').classList.add('hid'); speak(oList[oI].prompt); };
   $('oBack').onclick = oralMenu;
   $('oMic').onclick = function () {
     var o = oList[oI], h = $('oHeard');
-    h.classList.remove('hid'); h.textContent = '🎤 Te escucho… habla ahora en alemán.'; scheduleOralFit(); oClear(h);
+    h.classList.remove('hid'); h.textContent = '🎤 Te escucho… habla ahora en alemán.'; scheduleOralFit(h);
     stopSpeak();
     oListen = LS.listen({
       onResult: function (alts) {
@@ -365,15 +367,16 @@
         alts.forEach(function (a) { var m = LS.matchKeys(a, o.keys); if (m.length > hit.length) { hit = m; best = a; } });
         var uniq = []; (o.keys || []).forEach(function (k) { if (uniq.indexOf(k) < 0) uniq.push(k); });
         h.innerHTML = '👂 Escuché: «' + best.replace(/</g, '') + '»<br>' + (hit.length ? '⭐ ¡Muy bien! Dijiste: <b>' + hit.join(', ') + '</b>.' + (hit.length < uniq.length ? ' Compara con el modelo 💡.' : ' 🎉') : '🙂 ¡Buen intento! Mira el modelo 💡 y repítelo.');
-        scheduleOralFit(); oClear(h);
+        scheduleOralFit(h);
       },
-      onError: function () { oListen = null; h.textContent = '🙂 No te escuché bien, ¡no pasa nada! Dilo en voz alta y luego mira el modelo 💡.'; scheduleOralFit(); oClear(h); }
+      onError: function () { oListen = null; h.textContent = '🙂 No te escuché bien, ¡no pasa nada! Dilo en voz alta y luego mira el modelo 💡.'; scheduleOralFit(h); }
     });
   };
   $('bOral').onclick = oralMenu;
 
   /* ---------------- INICIO ---------------- */
   drawCk(); $('best').textContent = ST.getItem(E.BK) || 0;
+  if (new URLSearchParams(location.search).has('test')) {
   window.__TEST__ = function () {
     return { cur: cur, score: score, done: done, chal: chal, missed: missed, finish: finish, CK: E.CK, BK: E.BK, getCk: function () { return E.getChecks(ST); },
       setScore: function (s, d) { score = s; done = d; $('sc').textContent = s; $('cnt').textContent = 'Preguntas: ' + d; },
@@ -391,4 +394,5 @@
         return true;
       } };
   };
+  }
 })();
